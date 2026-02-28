@@ -50,7 +50,7 @@ SUBREDDITS = [
     "unitedkingdom", "worldnews",
 ]
 
-TIME_FILTER = "week"   # hour / day / week / month / year / all
+TIME_FILTER = "day"    # hour / day / week / month / year / all
 POST_LIMIT  = 100      # max 100 per request
 
 OUTPUT_FILE = os.path.expanduser("~/reddit-radar-data.json")
