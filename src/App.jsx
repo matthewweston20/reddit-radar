@@ -295,11 +295,7 @@ export default function App() {
     if (filterChannel !== "all" && p.scores[filterChannel] < minScore) return false;
     if (filterChannel === "all" && Math.max(...Object.values(p.scores)) < minScore) return false;
     return true;
-  }).sort((a, b) => {
-    const sa = filterChannel === "all" ? Math.max(...Object.values(a.scores)) : a.scores[filterChannel];
-    const sb = filterChannel === "all" ? Math.max(...Object.values(b.scores)) : b.scores[filterChannel];
-    return sb - sa;
-  });
+  }).sort((a, b) => b.ups - a.ups);
 
   const totalPosts = posts.length;
   const avgScore = posts.length ? Math.round(posts.reduce((acc, p) => acc + Math.max(...Object.values(p.scores)), 0) / posts.length) : 0;
