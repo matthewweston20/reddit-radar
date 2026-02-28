@@ -83,6 +83,7 @@ function parsePosts(data) {
       ? (p.permalink.startsWith("http") ? p.permalink : "https://reddit.com" + p.permalink)
       : (p.url || ""),
     created: p.created_utc ? new Date(p.created_utc * 1000).toLocaleDateString() : "?",
+    created_utc: p.created_utc || 0,
     scores: scorePost(p.title || "", p.selftext || ""),
     _fetchedAt: fetchedAt,
   }));
@@ -290,7 +291,9 @@ export default function App() {
       .finally(() => setLoading(false));
   };
 
+  const cutoff = Date.now() / 1000 - 86400; // 24 hours ago in Unix seconds
   const filteredPosts = posts.filter(p => {
+    if (p.created_utc && p.created_utc < cutoff) return false;
     if (filterSub !== "all" && p.subreddit.toLowerCase() !== filterSub.toLowerCase()) return false;
     if (filterChannel !== "all" && p.scores[filterChannel] < minScore) return false;
     if (filterChannel === "all" && Math.max(...Object.values(p.scores)) < minScore) return false;
