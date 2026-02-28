@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+    <!-- Unique label for this job -->
+    <key>Label</key>
+    <string>com.redditradar.fetch</string>
+
+    <!-- Script to run -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>PLACEHOLDER_SCRIPT_PATH</string>
+    </array>
+
+    <!-- Run daily at 08:00 AM -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>8</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <!-- Log stdout and stderr -->
+    <key>StandardOutPath</key>
+    <string>PLACEHOLDER_HOME/reddit-radar-launchd.log</string>
+    <key>StandardErrorPath</key>
+    <string>PLACEHOLDER_HOME/reddit-radar-launchd-error.log</string>
+
+    <!-- Run if missed (e.g. laptop was asleep) -->
+    <key>RunAtLoad</key>
+    <false/>
+
+</dict>
+</plist>
