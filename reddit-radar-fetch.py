@@ -57,7 +57,7 @@ OUTPUT_FILE = os.path.expanduser("~/reddit-radar-data.json")
 LOG_FILE    = os.path.expanduser("~/reddit-radar-fetch.log")
 
 HEADERS = {
-    "User-Agent": "RedditRadar/1.0 (personal dashboard; contact via reddit)"
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
