@@ -1,51 +1,64 @@
 import { useState, useEffect, useRef } from "react";
 
-// ── Supabase config (set via Vite env vars) ─────────────────────────────────
+// ââ Supabase config (set via Vite env vars) âââââââââââââââââââââââââââââââââ
 const SUPABASE_URL      = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const CHANNELS = {
-  hand: {
-    label: "The Invisible Hand",
-    short: "Hand",
-    color: "#00D4FF",
-    keywords: ["economics", "market", "trade", "capitalism", "inflation", "gdp", "tariff", "supply chain", "federal reserve", "interest rate", "stock", "finance", "debt", "fiscal", "monetary", "geopolitics", "sanctions", "currency", "oil", "energy", "commodity", "investment", "hedge fund", "wall street", "economy", "recession", "growth", "wealth", "inequality", "globalization"],
-  },
-  game: {
-    label: "The Invisible Game",
-    short: "Game",
+  labour: {
+    label: "American Labour",
+    short: "Labour",
     color: "#FF6B35",
-    keywords: ["power", "politics", "strategy", "influence", "diplomacy", "military", "nato", "china", "russia", "usa", "election", "government", "policy", "congress", "senate", "war", "conflict", "alliance", "intelligence", "espionage", "spy", "coup", "regime", "authoritarian", "democracy", "propaganda", "soft power", "hegemony", "cold war"],
+    keywords: ["worker", "workers", "workforce", "labor", "labour", "employment", "unemployment", "wage", "wages", "salary", "salaries", "union", "unions", "strike", "strikes", "job", "jobs", "layoff", "layoffs", "hiring", "fired", "gig economy", "automation", "minimum wage", "remote work", "work from home", "pension", "benefits", "manufacturing", "white collar", "blue collar", "AI jobs", "robots replacing", "working class", "labor market", "job market", "cost of living", "income", "pay gap", "executive pay"],
   },
-  crown: {
-    label: "The Invisible Crown",
-    short: "Crown",
+  myths: {
+    label: "Finance Myths",
+    short: "Myths",
     color: "#A855F7",
-    keywords: ["elite", "billionaire", "oligarch", "dynasty", "aristocracy", "class", "privilege", "wealth", "power", "establishment", "old money", "new money", "tech mogul", "philanthropy", "foundation", "davos", "world economic forum", "secret", "club", "society", "network", "connections", "harvard", "yale", "oxford", "inheritance", "legacy"],
+    keywords: ["myth", "misconception", "debunk", "debunked", "wrong about", "actually", "contrary", "surprisingly", "narrative", "conventional wisdom", "orthodox", "heterodox", "challenge", "rethink", "what economists", "popular belief", "everyone thinks", "not what you think", "truth about", "lie", "misleading", "false", "misunderstood", "overrated", "underrated", "broken", "fails", "doesn't work", "bad economics", "flawed", "assumption", "why your", "the real reason", "what really"],
+  },
+  nations: {
+    label: "Nation-Based Analysis",
+    short: "Nations",
+    color: "#00D4FF",
+    keywords: ["china", "india", "germany", "japan", "france", "brazil", "russia", "turkey", "argentina", "mexico", "south korea", "indonesia", "saudi arabia", "iran", "nigeria", "egypt", "pakistan", "vietnam", "uk economy", "british economy", "american economy", "us economy", "chinese economy", "indian economy", "economic rise", "economic decline", "economic stagnation", "emerging market", "developed economy", "gdp growth", "economic model", "economic miracle", "economic crisis", "country's economy", "national economy"],
+  },
+  geo: {
+    label: "Geopolitical Developments",
+    short: "Geo",
+    color: "#F43F5E",
+    keywords: ["war", "conflict", "sanctions", "trade war", "tariff", "tariffs", "nato", "ukraine", "taiwan", "israel", "iran", "russia", "military", "alliance", "treaty", "embargo", "supply chain", "reshoring", "decoupling", "de-dollarization", "petrodollar", "belt and road", "hegemony", "geopolitics", "geopolitical", "diplomacy", "diplomatic", "foreign policy", "global order", "world order", "power shift", "proxy war", "coup", "regime change", "oil price", "energy security", "strategic"],
+  },
+  macro: {
+    label: "Macro & Debt Economy",
+    short: "Macro",
+    color: "#22C55E",
+    keywords: ["debt", "deficit", "inflation", "deflation", "interest rate", "interest rates", "federal reserve", "fed", "central bank", "quantitative easing", "monetary policy", "fiscal policy", "recession", "depression", "bubble", "crash", "bond market", "yield curve", "sovereign debt", "national debt", "money supply", "stagflation", "structural", "demographic", "aging population", "pension crisis", "credit", "borrowing", "austerity", "stimulus", "bail out", "bailout", "too big to fail", "financial system", "banking crisis", "currency crisis", "long-term", "slow-moving"],
   },
 };
 
 const DEFAULT_SUBREDDITS = [
-  { name: "dataisbeautiful", channels: ["hand", "game", "crown"] },
-  { name: "explainlikeimfive", channels: ["hand", "game", "crown"] },
-  { name: "geopolitics", channels: ["hand", "game"] },
-  { name: "news", channels: ["hand", "game", "crown"] },
-  { name: "ukpolitics", channels: ["game"] },
-  { name: "unitedkingdom", channels: ["game", "crown"] },
-  { name: "business", channels: ["hand", "crown"] },
-  { name: "worldnews", channels: ["hand", "game", "crown"] },
-  { name: "geography", channels: ["hand", "game"] },
-  { name: "europe", channels: ["hand", "game"] },
-  { name: "economics", channels: ["hand"] },
-  { name: "AskEconomics", channels: ["hand"] },
-  { name: "internationalpolitics", channels: ["hand", "game"] },
-  { name: "politics", channels: ["game"] },
-  { name: "underreportednews", channels: ["hand", "game", "crown"] },
-  { name: "economy", channels: ["hand"] },
-  { name: "nato", channels: ["game"] },
-  { name: "EndlessWar", channels: ["game"] },
-  { name: "europeanunion", channels: ["hand", "game"] },
-  { name: "China", channels: ["hand", "game"] },
+  { name: "dataisbeautiful", channels: ["labour", "myths", "nations", "geo", "macro"] },
+  { name: "explainlikeimfive", channels: ["labour", "myths", "nations", "geo", "macro"] },
+  { name: "geopolitics", channels: ["geo", "nations"] },
+  { name: "news", channels: ["labour", "myths", "nations", "geo", "macro"] },
+  { name: "unitedkingdom", channels: ["nations", "macro"] },
+  { name: "business", channels: ["myths", "macro", "labour"] },
+  { name: "worldnews", channels: ["geo", "nations"] },
+  { name: "geography", channels: ["nations"] },
+  { name: "europe", channels: ["nations", "geo", "macro"] },
+  { name: "economics", channels: ["myths", "macro", "nations"] },
+  { name: "AskEconomics", channels: ["myths", "macro"] },
+  { name: "underreportednews", channels: ["labour", "myths", "nations", "geo", "macro"] },
+  { name: "economy", channels: ["macro", "labour"] },
+  { name: "nato", channels: ["geo"] },
+  { name: "EndlessWar", channels: ["geo"] },
+  { name: "europeanunion", channels: ["nations", "geo", "macro"] },
+  { name: "China", channels: ["nations", "geo", "macro"] },
+  { name: "energy", channels: ["geo", "macro", "nations"] },
+  { name: "neoliberal", channels: ["myths", "macro"] },
+  { name: "finance", channels: ["myths", "macro", "labour"] },
+  { name: "artificialintelligence", channels: ["labour", "macro"] },
 ];
 
 function scorePost(title, text = "") {
@@ -89,7 +102,7 @@ function parsePosts(data) {
   }));
 }
 
-// ── Fetch latest data from Supabase ─────────────────────────────────────────
+// ââ Fetch latest data from Supabase âââââââââââââââââââââââââââââââââââââââââ
 async function fetchFromSupabase() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     throw new Error("Supabase env vars not set (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY)");
@@ -105,7 +118,7 @@ async function fetchFromSupabase() {
   );
   if (!res.ok) throw new Error(`Supabase HTTP ${res.status}`);
   const rows = await res.json();
-  if (!rows.length) throw new Error("No data in Supabase yet — run the fetcher first.");
+  if (!rows.length) throw new Error("No data in Supabase yet â run the fetcher first.");
   return rows[0].payload;
 }
 
@@ -162,7 +175,7 @@ function PostCard({ post, index }) {
               background: "rgba(255,255,255,0.05)", padding: "2px 7px",
               borderRadius: "3px", fontFamily: "monospace",
             }}>r/{post.subreddit}</span>
-            <span style={{ fontSize: "11px", color: "#555" }}>↑{post.ups?.toLocaleString() || "?"}</span>
+            <span style={{ fontSize: "11px", color: "#555" }}>â{post.ups?.toLocaleString() || "?"}</span>
             <span style={{ fontSize: "11px", color: "#444" }}>{post.created}</span>
           </div>
           <div style={{
@@ -185,7 +198,7 @@ function PostCard({ post, index }) {
                 href={post.url} target="_blank" rel="noopener noreferrer"
                 onClick={e => e.stopPropagation()}
                 style={{ marginLeft: "auto", fontSize: "11px", color: "#00D4FF", textDecoration: "none", opacity: 0.7 }}
-              >↗ Reddit</a>
+              >â Reddit</a>
             )}
           </div>
         </div>
@@ -206,7 +219,7 @@ function LoadingSpinner() {
         borderTopColor: "#00D4FF",
         animation: "spin 0.8s linear infinite",
       }} />
-      <div style={{ fontSize: "13px", color: "#555" }}>Loading latest posts from Supabase…</div>
+      <div style={{ fontSize: "13px", color: "#555" }}>Loading latest posts from Supabaseâ¦</div>
     </div>
   );
 }
@@ -251,15 +264,15 @@ export default function App() {
     try {
       const data = JSON.parse(rawJson);
       const newPosts = parsePosts(data);
-      if (!newPosts.length) { setFetchLog("✗ No posts found in that JSON."); return; }
+      if (!newPosts.length) { setFetchLog("â No posts found in that JSON."); return; }
       const fetchedAt = data.fetched_at || new Date().toISOString();
       const merged = [...newPosts, ...posts].filter(
         (p, i, arr) => arr.findIndex(x => x.id === p.id) === i
       );
       savePosts(merged, fetchedAt);
-      setFetchLog(`✓ Loaded ${newPosts.length} posts. Total: ${merged.length}`);
+      setFetchLog(`â Loaded ${newPosts.length} posts. Total: ${merged.length}`);
     } catch (e) {
-      setFetchLog("✗ Invalid JSON: " + e.message);
+      setFetchLog("â Invalid JSON: " + e.message);
     }
   };
 
@@ -269,7 +282,7 @@ export default function App() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       ingestData(ev.target.result);
-      setFetchLog(`✓ Loaded from file: ${file.name}`);
+      setFetchLog(`â Loaded from file: ${file.name}`);
     };
     reader.readAsText(file);
   };
@@ -282,11 +295,11 @@ export default function App() {
         const newPosts = parsePosts(data);
         setPosts(newPosts);
         if (data.fetched_at) setLastFetched(data.fetched_at);
-        setFetchLog(`✓ Refreshed from Supabase — ${newPosts.length} posts`);
+        setFetchLog(`â Refreshed from Supabase â ${newPosts.length} posts`);
       })
       .catch(err => {
         setLoadError(err.message);
-        setFetchLog(`✗ Supabase error: ${err.message}`);
+        setFetchLog(`â Supabase error: ${err.message}`);
       })
       .finally(() => setLoading(false));
   };
@@ -304,9 +317,9 @@ export default function App() {
   const avgScore = posts.length ? Math.round(posts.reduce((acc, p) => acc + Math.max(...Object.values(p.scores)), 0) / posts.length) : 0;
 
   const NAV = [
-    { id: "dashboard", icon: "⬛", label: "Dashboard" },
-    { id: "fetch", icon: "⬇", label: "Load Data" },
-    { id: "subreddits", icon: "◎", label: "Subreddits" },
+    { id: "dashboard", icon: "â¬", label: "Dashboard" },
+    { id: "fetch", icon: "â¬", label: "Load Data" },
+    { id: "subreddits", icon: "â", label: "Subreddits" },
   ];
 
   return (
@@ -390,12 +403,12 @@ export default function App() {
                 cursor: loading ? "default" : "pointer", display: "flex", alignItems: "center", gap: "6px",
               }}
             >
-              {loading ? "⟳ Loading…" : "⟳ Refresh"}
+              {loading ? "â³ Loadingâ¦" : "â³ Refresh"}
             </button>
           )}
         </div>
 
-        {/* ── Dashboard tab ── */}
+        {/* ââ Dashboard tab ââ */}
         {tab === "dashboard" && (
           <>
             {/* Error banner */}
@@ -405,7 +418,7 @@ export default function App() {
                 background: "rgba(255,68,68,0.08)", border: "1px solid rgba(255,68,68,0.2)",
                 fontSize: "12px", color: "#f55", fontFamily: "monospace",
               }}>
-                ✗ {loadError}
+                â {loadError}
               </div>
             )}
 
@@ -413,12 +426,14 @@ export default function App() {
               <LoadingSpinner />
             ) : (
               <>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "24px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "12px", marginBottom: "24px" }}>
                   {[
-                    { label: "Total Posts", value: totalPosts, color: "#00D4FF" },
-                    { label: "Avg Score", value: avgScore, color: "#FF6B35" },
-                    { label: "Hand Posts", value: posts.filter(p => p.scores.hand >= 4).length, color: "#00D4FF" },
-                    { label: "Game Posts", value: posts.filter(p => p.scores.game >= 4).length, color: "#FF6B35" },
+                    { label: "Total Posts", value: totalPosts, color: "#fff" },
+                    { label: "Labour", value: posts.filter(p => p.scores.labour >= 3).length, color: "#FF6B35" },
+                    { label: "Myths", value: posts.filter(p => p.scores.myths >= 3).length, color: "#A855F7" },
+                    { label: "Nations", value: posts.filter(p => p.scores.nations >= 3).length, color: "#00D4FF" },
+                    { label: "Geo", value: posts.filter(p => p.scores.geo >= 3).length, color: "#F43F5E" },
+                    { label: "Macro", value: posts.filter(p => p.scores.macro >= 3).length, color: "#22C55E" },
                   ].map(stat => (
                     <div key={stat.label} style={{
                       background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
@@ -470,7 +485,7 @@ export default function App() {
                     background: "rgba(255,255,255,0.02)", borderRadius: "8px",
                     border: "1px dashed rgba(255,255,255,0.08)",
                   }}>
-                    <div style={{ fontSize: "32px", marginBottom: "12px" }}>📡</div>
+                    <div style={{ fontSize: "32px", marginBottom: "12px" }}>ð¡</div>
                     <div style={{ fontSize: "14px", color: "#555", marginBottom: "12px" }}>No posts yet.</div>
                     <div style={{ fontSize: "12px", color: "#444" }}>
                       Run <code style={{ color: "#888", background: "rgba(255,255,255,0.06)", padding: "1px 5px", borderRadius: "3px" }}>reddit-radar-fetch.py</code> on your Mac to populate data.
@@ -486,7 +501,7 @@ export default function App() {
           </>
         )}
 
-        {/* ── Load Data tab ── */}
+        {/* ââ Load Data tab ââ */}
         {tab === "fetch" && (
           <div style={{ maxWidth: "700px", display: "flex", flexDirection: "column", gap: "20px" }}>
 
@@ -496,7 +511,7 @@ export default function App() {
               borderRadius: "10px", padding: "20px 24px",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
-                <span style={{ fontSize: "18px" }}>☁️</span>
+                <span style={{ fontSize: "18px" }}>âï¸</span>
                 <div style={{ fontSize: "14px", fontWeight: "600", color: "#00D4FF" }}>Refresh from Supabase</div>
                 <span style={{
                   fontSize: "10px", background: "rgba(0,212,255,0.15)", color: "#00D4FF",
@@ -518,7 +533,7 @@ export default function App() {
                   fontWeight: "700", cursor: loading ? "default" : "pointer", opacity: loading ? 0.6 : 1,
                 }}
               >
-                {loading ? "⟳ Loading…" : "⟳ Refresh from Supabase"}
+                {loading ? "â³ Loadingâ¦" : "â³ Refresh from Supabase"}
               </button>
             </div>
 
@@ -528,7 +543,7 @@ export default function App() {
               borderRadius: "10px", padding: "20px 24px",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
-                <span style={{ fontSize: "18px" }}>📂</span>
+                <span style={{ fontSize: "18px" }}>ð</span>
                 <div style={{ fontSize: "14px", fontWeight: "600", color: "#ccc" }}>Load local file</div>
               </div>
               <div style={{ fontSize: "12px", color: "#555", lineHeight: "1.7", marginBottom: "14px" }}>
@@ -543,7 +558,7 @@ export default function App() {
                   fontWeight: "600", cursor: "pointer",
                 }}
               >
-                📂 Open JSON file
+                ð Open JSON file
               </button>
             </div>
 
@@ -553,7 +568,7 @@ export default function App() {
               borderRadius: "10px", padding: "20px 24px",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
-                <span style={{ fontSize: "18px" }}>📋</span>
+                <span style={{ fontSize: "18px" }}>ð</span>
                 <div style={{ fontSize: "14px", fontWeight: "600", color: "#ccc" }}>Paste JSON manually</div>
               </div>
               <div style={{ fontSize: "12px", color: "#555", lineHeight: "1.7", marginBottom: "14px" }}>
@@ -591,16 +606,16 @@ export default function App() {
             {fetchLog && (
               <div style={{
                 padding: "10px 14px", borderRadius: "6px",
-                background: fetchLog.startsWith("✓") ? "rgba(0,200,100,0.08)" : "rgba(255,50,50,0.08)",
-                border: `1px solid ${fetchLog.startsWith("✓") ? "rgba(0,200,100,0.2)" : "rgba(255,50,50,0.2)"}`,
-                fontSize: "12px", color: fetchLog.startsWith("✓") ? "#0c8" : "#f55",
+                background: fetchLog.startsWith("â") ? "rgba(0,200,100,0.08)" : "rgba(255,50,50,0.08)",
+                border: `1px solid ${fetchLog.startsWith("â") ? "rgba(0,200,100,0.2)" : "rgba(255,50,50,0.2)"}`,
+                fontSize: "12px", color: fetchLog.startsWith("â") ? "#0c8" : "#f55",
                 fontFamily: "monospace",
               }}>{fetchLog}</div>
             )}
           </div>
         )}
 
-        {/* ── Subreddits tab ── */}
+        {/* ââ Subreddits tab ââ */}
         {tab === "subreddits" && (
           <div style={{ maxWidth: "600px" }}>
             <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
@@ -669,7 +684,7 @@ export default function App() {
                   <button
                     onClick={() => setSubreddits(subreddits.filter((_, j) => j !== i))}
                     style={{ background: "none", border: "none", color: "#444", cursor: "pointer", fontSize: "14px", padding: "0 4px" }}
-                  >×</button>
+                  >Ã</button>
                 </div>
               ))}
             </div>
