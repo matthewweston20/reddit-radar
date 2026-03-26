@@ -4,71 +4,108 @@ import { useState, useEffect, useRef } from "react";
 const SUPABASE_URL      = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// ââ Channels âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Hand score is derived from 5 content buckets (max bucket score).
+// Game and Crown each have their own keyword sets.
 const CHANNELS = {
-  labour: {
-    label: "American Labour",
-    short: "Labour",
-    color: "#FF6B35",
-    keywords: ["worker", "workers", "workforce", "labor", "labour", "employment", "unemployment", "wage", "wages", "salary", "salaries", "union", "unions", "strike", "strikes", "job", "jobs", "layoff", "layoffs", "hiring", "fired", "gig economy", "automation", "minimum wage", "remote work", "work from home", "pension", "benefits", "manufacturing", "white collar", "blue collar", "AI jobs", "robots replacing", "working class", "labor market", "job market", "cost of living", "income", "pay gap", "executive pay"],
-  },
-  myths: {
-    label: "Finance Myths",
-    short: "Myths",
-    color: "#A855F7",
-    keywords: ["myth", "misconception", "debunk", "debunked", "wrong about", "actually", "contrary", "surprisingly", "narrative", "conventional wisdom", "orthodox", "heterodox", "challenge", "rethink", "what economists", "popular belief", "everyone thinks", "not what you think", "truth about", "lie", "misleading", "false", "misunderstood", "overrated", "underrated", "broken", "fails", "doesn't work", "bad economics", "flawed", "assumption", "why your", "the real reason", "what really"],
-  },
-  nations: {
-    label: "Nation-Based Analysis",
-    short: "Nations",
+  hand: {
+    label: "The Invisible Hand",
+    short: "Hand",
     color: "#00D4FF",
-    keywords: ["china", "india", "germany", "japan", "france", "brazil", "russia", "turkey", "argentina", "mexico", "south korea", "indonesia", "saudi arabia", "iran", "nigeria", "egypt", "pakistan", "vietnam", "uk economy", "british economy", "american economy", "us economy", "chinese economy", "indian economy", "economic rise", "economic decline", "economic stagnation", "emerging market", "developed economy", "gdp growth", "economic model", "economic miracle", "economic crisis", "country's economy", "national economy"],
+    buckets: {
+      labour: {
+        label: "American Labour",
+        short: "Labour",
+        color: "#FF6B35",
+        keywords: ["worker", "workers", "workforce", "labor", "labour", "employment", "unemployment", "wage", "wages", "salary", "salaries", "union", "unions", "strike", "strikes", "job", "jobs", "layoff", "layoffs", "hiring", "fired", "gig economy", "automation", "minimum wage", "remote work", "work from home", "pension", "benefits", "manufacturing", "white collar", "blue collar", "AI jobs", "robots replacing", "working class", "labor market", "job market", "cost of living", "income", "pay gap", "executive pay"],
+      },
+      myths: {
+        label: "Finance Myths",
+        short: "Myths",
+        color: "#A855F7",
+        keywords: ["myth", "misconception", "debunk", "debunked", "wrong about", "actually", "contrary", "surprisingly", "narrative", "conventional wisdom", "orthodox", "heterodox", "challenge", "rethink", "what economists", "popular belief", "everyone thinks", "not what you think", "truth about", "lie", "misleading", "false", "misunderstood", "overrated", "underrated", "broken", "fails", "doesn't work", "bad economics", "flawed", "assumption", "why your", "the real reason", "what really"],
+      },
+      nations: {
+        label: "Nation-Based Analysis",
+        short: "Nations",
+        color: "#4ADE80",
+        keywords: ["china", "india", "germany", "japan", "france", "brazil", "russia", "turkey", "argentina", "mexico", "south korea", "indonesia", "saudi arabia", "iran", "nigeria", "egypt", "pakistan", "vietnam", "uk economy", "british economy", "american economy", "us economy", "chinese economy", "indian economy", "economic rise", "economic decline", "economic stagnation", "emerging market", "developed economy", "gdp growth", "economic model", "economic miracle", "economic crisis", "country's economy", "national economy"],
+      },
+      geo: {
+        label: "Geopolitical Developments",
+        short: "Geo",
+        color: "#F43F5E",
+        keywords: ["war", "conflict", "sanctions", "trade war", "tariff", "tariffs", "nato", "ukraine", "taiwan", "israel", "iran", "russia", "military", "alliance", "treaty", "embargo", "supply chain", "reshoring", "decoupling", "de-dollarization", "petrodollar", "belt and road", "hegemony", "geopolitics", "geopolitical", "diplomacy", "diplomatic", "foreign policy", "global order", "world order", "power shift", "proxy war", "coup", "regime change", "oil price", "energy security", "strategic"],
+      },
+      macro: {
+        label: "Macro & Debt Economy",
+        short: "Macro",
+        color: "#22C55E",
+        keywords: ["debt", "deficit", "inflation", "deflation", "interest rate", "interest rates", "federal reserve", "fed", "central bank", "quantitative easing", "monetary policy", "fiscal policy", "recession", "depression", "bubble", "crash", "bond market", "yield curve", "sovereign debt", "national debt", "money supply", "stagflation", "structural", "demographic", "aging population", "pension crisis", "credit", "borrowing", "austerity", "stimulus", "bail out", "bailout", "too big to fail", "financial system", "banking crisis", "currency crisis", "long-term", "slow-moving"],
+      },
+    },
   },
-  geo: {
-    label: "Geopolitical Developments",
-    short: "Geo",
-    color: "#F43F5E",
-    keywords: ["war", "conflict", "sanctions", "trade war", "tariff", "tariffs", "nato", "ukraine", "taiwan", "israel", "iran", "russia", "military", "alliance", "treaty", "embargo", "supply chain", "reshoring", "decoupling", "de-dollarization", "petrodollar", "belt and road", "hegemony", "geopolitics", "geopolitical", "diplomacy", "diplomatic", "foreign policy", "global order", "world order", "power shift", "proxy war", "coup", "regime change", "oil price", "energy security", "strategic"],
+  game: {
+    label: "The Invisible Game",
+    short: "Game",
+    color: "#A855F7",
+    keywords: ["startup", "venture capital", "vc", "founder", "ceo", "corporate", "business model", "disruption", "disruptive", "market share", "monopoly", "oligopoly", "platform", "network effect", "competitive advantage", "moat", "acquisition", "merger", "ipo", "valuation", "unicorn", "big tech", "amazon", "apple", "google", "microsoft", "meta", "nvidia", "tesla", "elon musk", "bezos", "zuckerberg", "antitrust", "market power", "advertising", "subscription", "silicon valley", "fintech", "saas", "software company", "earnings", "quarterly results", "market cap", "industry", "sector", "openai", "anthropic", "ai company", "tech company", "competition law", "duopoly", "pivot", "product market fit", "scale", "growth hacking", "b2b", "b2c"],
   },
-  macro: {
-    label: "Macro & Debt Economy",
-    short: "Macro",
-    color: "#22C55E",
-    keywords: ["debt", "deficit", "inflation", "deflation", "interest rate", "interest rates", "federal reserve", "fed", "central bank", "quantitative easing", "monetary policy", "fiscal policy", "recession", "depression", "bubble", "crash", "bond market", "yield curve", "sovereign debt", "national debt", "money supply", "stagflation", "structural", "demographic", "aging population", "pension crisis", "credit", "borrowing", "austerity", "stimulus", "bail out", "bailout", "too big to fail", "financial system", "banking crisis", "currency crisis", "long-term", "slow-moving"],
+  crown: {
+    label: "The Invisible Crown",
+    short: "Crown",
+    color: "#F59E0B",
+    keywords: ["government", "political", "policy", "legislation", "congress", "parliament", "senate", "president", "prime minister", "chancellor", "election", "vote", "democracy", "authoritarian", "dictatorship", "regime", "protest", "lobbying", "lobbyist", "power", "elite", "billionaire", "oligarch", "corruption", "scandal", "institution", "imf", "world bank", "united nations", "g7", "g20", "brics", "sovereignty", "constitution", "civil rights", "surveillance", "propaganda", "censorship", "disinformation", "political party", "populism", "nationalism", "globalism", "regulatory capture", "revolving door", "dark money", "intelligence agency", "state power", "governing", "lawmaker", "regulator", "executive order", "supreme court", "judiciary", "deep state"],
   },
 };
 
 const DEFAULT_SUBREDDITS = [
-  { name: "dataisbeautiful", channels: ["labour", "myths", "nations", "geo", "macro"] },
-  { name: "explainlikeimfive", channels: ["labour", "myths", "nations", "geo", "macro"] },
-  { name: "geopolitics", channels: ["geo", "nations"] },
-  { name: "news", channels: ["labour", "myths", "nations", "geo", "macro"] },
-  { name: "unitedkingdom", channels: ["nations", "macro"] },
-  { name: "business", channels: ["myths", "macro", "labour"] },
-  { name: "worldnews", channels: ["geo", "nations"] },
-  { name: "geography", channels: ["nations"] },
-  { name: "europe", channels: ["nations", "geo", "macro"] },
-  { name: "economics", channels: ["myths", "macro", "nations"] },
-  { name: "AskEconomics", channels: ["myths", "macro"] },
-  { name: "underreportednews", channels: ["labour", "myths", "nations", "geo", "macro"] },
-  { name: "economy", channels: ["macro", "labour"] },
-  { name: "nato", channels: ["geo"] },
-  { name: "EndlessWar", channels: ["geo"] },
-  { name: "europeanunion", channels: ["nations", "geo", "macro"] },
-  { name: "China", channels: ["nations", "geo", "macro"] },
-  { name: "energy", channels: ["geo", "macro", "nations"] },
-  { name: "neoliberal", channels: ["myths", "macro"] },
-  { name: "finance", channels: ["myths", "macro", "labour"] },
-  { name: "artificialintelligence", channels: ["labour", "macro"] },
+  { name: "dataisbeautiful",      channels: ["hand", "game", "crown"] },
+  { name: "explainlikeimfive",    channels: ["hand", "game", "crown"] },
+  { name: "geopolitics",          channels: ["hand", "crown"] },
+  { name: "news",                 channels: ["hand", "game", "crown"] },
+  { name: "unitedkingdom",        channels: ["hand", "crown"] },
+  { name: "business",             channels: ["hand", "game"] },
+  { name: "worldnews",            channels: ["hand", "crown"] },
+  { name: "geography",            channels: ["hand"] },
+  { name: "europe",               channels: ["hand", "crown"] },
+  { name: "economics",            channels: ["hand"] },
+  { name: "AskEconomics",         channels: ["hand"] },
+  { name: "underreportednews",    channels: ["hand", "game", "crown"] },
+  { name: "economy",              channels: ["hand"] },
+  { name: "nato",                 channels: ["hand", "crown"] },
+  { name: "EndlessWar",           channels: ["hand", "crown"] },
+  { name: "europeanunion",        channels: ["hand", "crown"] },
+  { name: "China",                channels: ["hand", "crown"] },
+  { name: "energy",               channels: ["hand", "crown"] },
+  { name: "neoliberal",           channels: ["hand", "game"] },
+  { name: "finance",              channels: ["hand", "game"] },
+  { name: "artificialintelligence", channels: ["hand", "game"] },
 ];
 
+// ââ Scoring âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Hand score = max of the 5 bucket scores (post is relevant if it fits any bucket)
+// Game and Crown each scored against their own keyword lists
 function scorePost(title, text = "") {
   const content = (title + " " + text).toLowerCase();
-  const scores = {};
-  for (const [key, channel] of Object.entries(CHANNELS)) {
-    const hits = channel.keywords.filter(kw => content.includes(kw)).length;
-    scores[key] = Math.min(10, Math.round((hits / 3) * 10));
+
+  // Score each Hand bucket
+  const buckets = {};
+  for (const [key, bucket] of Object.entries(CHANNELS.hand.buckets)) {
+    const hits = bucket.keywords.filter(kw => content.includes(kw)).length;
+    buckets[key] = Math.min(10, Math.round((hits / 3) * 10));
   }
-  return scores;
+  const handScore = Math.max(0, ...Object.values(buckets));
+
+  // Score Game
+  const gameHits = CHANNELS.game.keywords.filter(kw => content.includes(kw)).length;
+  const gameScore = Math.min(10, Math.round((gameHits / 3) * 10));
+
+  // Score Crown
+  const crownHits = CHANNELS.crown.keywords.filter(kw => content.includes(kw)).length;
+  const crownScore = Math.min(10, Math.round((crownHits / 3) * 10));
+
+  return { hand: handScore, game: gameScore, crown: crownScore, buckets };
 }
 
 function extractChildren(data) {
@@ -102,7 +139,7 @@ function parsePosts(data) {
   }));
 }
 
-// ââ Fetch latest data from Supabase âââââââââââââââââââââââââââââââââââââââââ
+// ââ Supabase fetch ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 async function fetchFromSupabase() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     throw new Error("Supabase env vars not set (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY)");
@@ -122,27 +159,45 @@ async function fetchFromSupabase() {
   return rows[0].payload;
 }
 
-function ScoreBadge({ score, color }) {
+// ââ Score Badge âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function ScoreBadge({ score, color, label }) {
   const opacity = score === 0 ? 0.2 : 0.4 + (score / 10) * 0.6;
   return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: "4px",
-      padding: "2px 8px", borderRadius: "4px",
-      background: `${color}${Math.round(opacity * 40).toString(16).padStart(2, "0")}`,
-      border: `1px solid ${color}${Math.round(opacity * 80).toString(16).padStart(2, "0")}`,
-      color: score === 0 ? "#555" : color,
-      fontSize: "11px", fontWeight: "700", fontFamily: "monospace",
-      minWidth: "32px", justifyContent: "center",
-    }}>
-      {score}
+    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+      {label && <span style={{ fontSize: "10px", color: "#555" }}>{label}</span>}
+      <div style={{
+        display: "flex", alignItems: "center", gap: "4px",
+        padding: "2px 8px", borderRadius: "4px",
+        background: `${color}${Math.round(opacity * 40).toString(16).padStart(2, "0")}`,
+        border: `1px solid ${color}${Math.round(opacity * 80).toString(16).padStart(2, "0")}`,
+        color: score === 0 ? "#555" : color,
+        fontSize: "11px", fontWeight: "700", fontFamily: "monospace",
+        minWidth: "32px", justifyContent: "center",
+      }}>
+        {score}
+      </div>
     </div>
   );
 }
 
+// ââ Post Card âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function PostCard({ post, index }) {
   const [expanded, setExpanded] = useState(false);
-  const topChannel = Object.entries(post.scores).sort((a, b) => b[1] - a[1])[0];
+
+  // Top channel among hand/game/crown
+  const channelEntries = [
+    ["hand", post.scores.hand],
+    ["game", post.scores.game],
+    ["crown", post.scores.crown],
+  ];
+  const topChannel = channelEntries.sort((a, b) => b[1] - a[1])[0];
   const topScore = topChannel[1];
+  const topColor = CHANNELS[topChannel[0]].color;
+
+  // Which Hand buckets are active (score > 0)
+  const activeBuckets = post.scores.buckets
+    ? Object.entries(post.scores.buckets).filter(([, s]) => s > 0)
+    : [];
 
   return (
     <div
@@ -158,17 +213,20 @@ function PostCard({ post, index }) {
       onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
     >
       <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+        {/* Top score icon */}
         <div style={{
           minWidth: "36px", height: "36px", borderRadius: "6px",
-          background: topScore > 5 ? `${CHANNELS[topChannel[0]].color}22` : "rgba(255,255,255,0.05)",
-          border: `1px solid ${topScore > 5 ? CHANNELS[topChannel[0]].color + "44" : "rgba(255,255,255,0.1)"}`,
+          background: topScore > 5 ? `${topColor}22` : "rgba(255,255,255,0.05)",
+          border: `1px solid ${topScore > 5 ? topColor + "44" : "rgba(255,255,255,0.1)"}`,
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: "13px", fontWeight: "800", color: topScore > 5 ? CHANNELS[topChannel[0]].color : "#666",
+          fontSize: "13px", fontWeight: "800", color: topScore > 5 ? topColor : "#666",
           fontFamily: "monospace",
         }}>
           {topScore}
         </div>
+
         <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Meta row */}
           <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "5px", flexWrap: "wrap" }}>
             <span style={{
               fontSize: "11px", color: "#888",
@@ -178,6 +236,8 @@ function PostCard({ post, index }) {
             <span style={{ fontSize: "11px", color: "#555" }}>â{post.ups?.toLocaleString() || "?"}</span>
             <span style={{ fontSize: "11px", color: "#444" }}>{post.created}</span>
           </div>
+
+          {/* Title */}
           <div style={{
             fontSize: "13px", color: "#ddd", lineHeight: "1.4",
             overflow: "hidden", display: "-webkit-box",
@@ -186,13 +246,13 @@ function PostCard({ post, index }) {
           }}>
             {post.title}
           </div>
-          <div style={{ display: "flex", gap: "6px", marginTop: "8px", flexWrap: "wrap" }}>
-            {Object.entries(CHANNELS).map(([key, ch]) => (
-              <div key={key} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <span style={{ fontSize: "10px", color: "#555" }}>{ch.short}</span>
-                <ScoreBadge score={post.scores[key]} color={ch.color} />
-              </div>
-            ))}
+
+          {/* Channel scores row */}
+          <div style={{ display: "flex", gap: "8px", marginTop: "8px", flexWrap: "wrap", alignItems: "center" }}>
+            <ScoreBadge score={post.scores.hand}  color={CHANNELS.hand.color}  label="Hand" />
+            <ScoreBadge score={post.scores.game}  color={CHANNELS.game.color}  label="Game" />
+            <ScoreBadge score={post.scores.crown} color={CHANNELS.crown.color} label="Crown" />
+
             {post.url && (
               <a
                 href={post.url} target="_blank" rel="noopener noreferrer"
@@ -201,6 +261,26 @@ function PostCard({ post, index }) {
               >â Reddit</a>
             )}
           </div>
+
+          {/* Hand bucket breakdown (shown when Hand score > 0 and card is expanded OR always if any bucket fires) */}
+          {activeBuckets.length > 0 && (
+            <div style={{ display: "flex", gap: "5px", marginTop: "6px", flexWrap: "wrap" }}>
+              {activeBuckets.map(([key, score]) => {
+                const bucket = CHANNELS.hand.buckets[key];
+                return (
+                  <div key={key} style={{
+                    display: "flex", alignItems: "center", gap: "3px",
+                    padding: "2px 7px", borderRadius: "3px",
+                    background: `${bucket.color}18`,
+                    border: `1px solid ${bucket.color}33`,
+                    fontSize: "10px", color: bucket.color, fontWeight: "600",
+                  }}>
+                    {bucket.short} <span style={{ fontFamily: "monospace", opacity: 0.8 }}>{score}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -239,7 +319,6 @@ export default function App() {
   const fileRef = useRef(null);
   const jsonRef = useRef(null);
 
-  // Auto-fetch from Supabase on mount
   useEffect(() => {
     setLoading(true);
     setLoadError(null);
@@ -249,9 +328,7 @@ export default function App() {
         setPosts(newPosts);
         if (data.fetched_at) setLastFetched(data.fetched_at);
       })
-      .catch(err => {
-        setLoadError(err.message);
-      })
+      .catch(err => setLoadError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
@@ -304,21 +381,22 @@ export default function App() {
       .finally(() => setLoading(false));
   };
 
-  const cutoff = Date.now() / 1000 - 86400; // 24 hours ago in Unix seconds
+  const cutoff = Date.now() / 1000 - 86400;
   const filteredPosts = posts.filter(p => {
     if (p.created_utc && p.created_utc < cutoff) return false;
     if (filterSub !== "all" && p.subreddit.toLowerCase() !== filterSub.toLowerCase()) return false;
-    if (filterChannel !== "all" && p.scores[filterChannel] < minScore) return false;
-    if (filterChannel === "all" && Math.max(...Object.values(p.scores)) < minScore) return false;
+    const channelScore = filterChannel === "all"
+      ? Math.max(p.scores.hand, p.scores.game, p.scores.crown)
+      : (p.scores[filterChannel] ?? 0);
+    if (channelScore < minScore) return false;
     return true;
   }).sort((a, b) => b.ups - a.ups);
 
   const totalPosts = posts.length;
-  const avgScore = posts.length ? Math.round(posts.reduce((acc, p) => acc + Math.max(...Object.values(p.scores)), 0) / posts.length) : 0;
 
   const NAV = [
     { id: "dashboard", icon: "â¬", label: "Dashboard" },
-    { id: "fetch", icon: "â¬", label: "Load Data" },
+    { id: "fetch",     icon: "â¬",  label: "Load Data" },
     { id: "subreddits", icon: "â", label: "Subreddits" },
   ];
 
@@ -411,7 +489,6 @@ export default function App() {
         {/* ââ Dashboard tab ââ */}
         {tab === "dashboard" && (
           <>
-            {/* Error banner */}
             {loadError && !loading && (
               <div style={{
                 padding: "12px 16px", borderRadius: "8px", marginBottom: "20px",
@@ -426,14 +503,13 @@ export default function App() {
               <LoadingSpinner />
             ) : (
               <>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "12px", marginBottom: "24px" }}>
+                {/* Stats grid */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "24px" }}>
                   {[
-                    { label: "Total Posts", value: totalPosts, color: "#fff" },
-                    { label: "Labour", value: posts.filter(p => p.scores.labour >= 3).length, color: "#FF6B35" },
-                    { label: "Myths", value: posts.filter(p => p.scores.myths >= 3).length, color: "#A855F7" },
-                    { label: "Nations", value: posts.filter(p => p.scores.nations >= 3).length, color: "#00D4FF" },
-                    { label: "Geo", value: posts.filter(p => p.scores.geo >= 3).length, color: "#F43F5E" },
-                    { label: "Macro", value: posts.filter(p => p.scores.macro >= 3).length, color: "#22C55E" },
+                    { label: "Total Posts",          value: totalPosts,                                             color: "#fff" },
+                    { label: "The Invisible Hand",   value: posts.filter(p => p.scores.hand  >= 3).length,         color: CHANNELS.hand.color },
+                    { label: "The Invisible Game",   value: posts.filter(p => p.scores.game  >= 3).length,         color: CHANNELS.game.color },
+                    { label: "The Invisible Crown",  value: posts.filter(p => p.scores.crown >= 3).length,         color: CHANNELS.crown.color },
                   ].map(stat => (
                     <div key={stat.label} style={{
                       background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
@@ -447,13 +523,16 @@ export default function App() {
                   ))}
                 </div>
 
+                {/* Filters */}
                 <div style={{ display: "flex", gap: "10px", marginBottom: "16px", flexWrap: "wrap" }}>
                   <select value={filterChannel} onChange={e => setFilterChannel(e.target.value)} style={{
                     background: "#111", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px",
                     color: "#ccc", padding: "7px 12px", fontSize: "12px", cursor: "pointer",
                   }}>
                     <option value="all">All Channels</option>
-                    {Object.entries(CHANNELS).map(([k, c]) => <option key={k} value={k}>{c.label}</option>)}
+                    <option value="hand">The Invisible Hand</option>
+                    <option value="game">The Invisible Game</option>
+                    <option value="crown">The Invisible Crown</option>
                   </select>
 
                   <select value={filterSub} onChange={e => setFilterSub(e.target.value)} style={{
@@ -505,7 +584,6 @@ export default function App() {
         {tab === "fetch" && (
           <div style={{ maxWidth: "700px", display: "flex", flexDirection: "column", gap: "20px" }}>
 
-            {/* Option 0: Refresh from Supabase */}
             <div style={{
               background: "rgba(0,212,255,0.04)", border: "1px solid rgba(0,212,255,0.15)",
               borderRadius: "10px", padding: "20px 24px",
@@ -537,7 +615,6 @@ export default function App() {
               </button>
             </div>
 
-            {/* Option 1: Load file */}
             <div style={{
               background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)",
               borderRadius: "10px", padding: "20px 24px",
@@ -562,7 +639,6 @@ export default function App() {
               </button>
             </div>
 
-            {/* Option 2: Paste JSON */}
             <div style={{
               background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)",
               borderRadius: "10px", padding: "20px 24px",
